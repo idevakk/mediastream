@@ -1,0 +1,15 @@
+# Build outputs
+dist/
+coverage.out
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Go
+vendor/
