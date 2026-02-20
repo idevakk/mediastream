@@ -3,6 +3,7 @@ package gui
 
 import (
 	"fmt"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -157,7 +158,7 @@ func buildUI(w fyne.Window) fyne.CanvasObject {
 		}()
 
 		streamURL := srv.StreamURL()
-		u, _ := fyne.ParseURI("http://localhost:" + strconv.Itoa(port) + "/stream")
+		u, _ := url.Parse("http://localhost:" + strconv.Itoa(port) + "/stream")
 		urlLabel.SetText(streamURL)
 		urlLabel.SetURL(u)
 		urlLabel.Hidden = false

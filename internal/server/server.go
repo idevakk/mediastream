@@ -4,6 +4,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"sync"
 	"time"
@@ -22,11 +23,12 @@ type Config struct {
 
 // Server manages the HTTP server and the active media source.
 type Server struct {
-	cfg      Config
-	source   media.Source
-	httpSrv  *http.Server
-	mu       sync.RWMutex
-	started  bool
+	cfg     Config
+	source  media.Source
+	httpSrv *http.Server
+	mu      sync.RWMutex
+	started bool
+	cancel  context.CancelFunc
 }
 
 // New creates and validates a new Server from the given Config.
@@ -54,6 +56,9 @@ func (s *Server) Start() error {
 	}
 	s.started = true
 
+	ctx, cancel := context.WithCancel(context.Background())
+	s.cancel = cancel
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/stream", s.handleStream)
 	mux.HandleFunc("/health", s.handleHealth)
@@ -61,6 +66,9 @@ func (s *Server) Start() error {
 	s.httpSrv = &http.Server{
 		Addr:    fmt.Sprintf(":%d", s.cfg.Port),
 		Handler: mux,
+		BaseContext: func(net.Listener) context.Context {
+			return ctx
+		},
 	}
 	s.mu.Unlock()
 
@@ -70,12 +78,19 @@ func (s *Server) Start() error {
 // Stop gracefully shuts down the HTTP server and closes the media source.
 func (s *Server) Stop() error {
 	s.mu.Lock()
-	defer s.mu.Unlock()
 
 	if !s.started {
+		s.mu.Unlock()
 		return nil
 	}
 	s.started = false
+
+	if s.cancel != nil {
+		s.cancel()
+	}
+
+	httpSrv := s.httpSrv
+	s.mu.Unlock()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -83,7 +98,7 @@ func (s *Server) Stop() error {
 	if err := s.source.Close(); err != nil {
 		return fmt.Errorf("closing media source: %w", err)
 	}
-	return s.httpSrv.Shutdown(ctx)
+	return httpSrv.Shutdown(ctx)
 }
 
 // IsRunning reports whether the server is currently active.

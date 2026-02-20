@@ -42,10 +42,10 @@ func (s *videoSource) spawn() error {
 	// image2pipe + mjpeg output gives us a raw stream of back-to-back JPEGs.
 	cmd := exec.Command("ffmpeg",
 		"-stream_loop", "-1",
-		"-re",                   // read at native frame rate
+		"-re", // read at native frame rate
 		"-i", s.path,
 		"-vf", fmt.Sprintf("fps=%d", s.frameRate),
-		"-q:v", "3",             // JPEG quality (2=best, 31=worst)
+		"-q:v", "3", // JPEG quality (2=best, 31=worst)
 		"-f", "image2pipe",
 		"-vcodec", "mjpeg",
 		"-",
@@ -111,9 +111,6 @@ func (s *videoSource) NextFrame() ([]byte, error) {
 
 // Close terminates the FFmpeg subprocess and closes the pipe.
 func (s *videoSource) Close() error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	if s.stdout != nil {
 		s.stdout.Close()
 	}
