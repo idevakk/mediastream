@@ -36,7 +36,7 @@ jobs:
         run: fyne package -os linux -src cmd/mediastream
         
       - name: Package Windows
-        run: fyne package -os windows -src cmd/mediastream
+        run: CC=x86_64-w64-mingw32-gcc CGO_ENABLED=1 fyne package -os windows -src cmd/mediastream
         
       # Rename the generated tarball and zip to include the architecture
       - name: Prepare Release Assets
