@@ -33,10 +33,10 @@ jobs:
         run: go install fyne.io/tools/cmd/fyne@latest
 
       - name: Package Linux
-        run: fyne package -os linux
+        run: fyne package -os linux -src cmd/mediastream
         
       - name: Package Windows
-        run: fyne package -os windows
+        run: fyne package -os windows -src cmd/mediastream
         
       # Rename the generated tarball and zip to include the architecture
       - name: Prepare Release Assets
