@@ -38,11 +38,11 @@ jobs:
       - name: Package Windows
         run: CC=x86_64-w64-mingw32-gcc CGO_ENABLED=1 fyne package -os windows -src cmd/mediastream
         
-      # Rename the generated tarball and zip to include the architecture
+      # Rename the generated binaries to include the architecture
       - name: Prepare Release Assets
         run: |
           mv mediastream.tar.xz mediastream-linux-amd64.tar.xz
-          mv mediastream.zip mediastream-windows-amd64.zip
+          mv mediastream.exe mediastream-windows-amd64.exe
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -50,6 +50,6 @@ jobs:
         with:
           files: |
             mediastream-linux-amd64.tar.xz
-            mediastream-windows-amd64.zip
+            mediastream-windows-amd64.exe
           name: Release ${{ github.ref_name }}
           generate_release_notes: true
