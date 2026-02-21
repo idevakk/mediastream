@@ -33,16 +33,16 @@ jobs:
         run: go install fyne.io/tools/cmd/fyne@latest
 
       - name: Package Linux
-        run: fyne package -os linux -src cmd/mediastream
+        run: fyne package -os linux -src cmd/mediastream -name mediastream
         
       - name: Package Windows
-        run: CC=x86_64-w64-mingw32-gcc CGO_ENABLED=1 fyne package -os windows -src cmd/mediastream
+        run: CC=x86_64-w64-mingw32-gcc CGO_ENABLED=1 fyne package -os windows -src cmd/mediastream -name mediastream
         
       # Rename the generated binaries to include the architecture
       - name: Prepare Release Assets
         run: |
-          mv mediastream.tar.xz mediastream-linux-amd64.tar.xz
-          mv mediastream.exe mediastream-windows-amd64.exe
+          find . -name "*.tar.xz" -exec mv {} mediastream-linux-amd64.tar.xz \;
+          find . -name "*.exe" -exec mv {} mediastream-windows-amd64.exe \;
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
